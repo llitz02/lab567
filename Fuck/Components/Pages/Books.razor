@@ -1,0 +1,112 @@
+﻿@page "/books"
+@inject Fuck.Services.LibraryService LibraryService
+@using Fuck.Models
+
+
+<h2 class="text-xl font-bold mb-4">Books</h2>
+
+<!-- Book List -->
+<table class="table-auto border-collapse w-full mb-4">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="border px-4 py-2">ID</th>
+            <th class="border px-4 py-2">Title</th>
+            <th class="border px-4 py-2">Author</th>
+            <th class="border px-4 py-2">ISBN</th>
+            <th class="border px-4 py-2">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in LibraryService.Books)
+        {
+            <tr>
+                <td class="border px-4 py-2">@book.Id</td>
+                <td class="border px-4 py-2">@book.Title</td>
+                <td class="border px-4 py-2">@book.Author</td>
+                <td class="border px-4 py-2">@book.ISBN</td>
+                <td class="border px-4 py-2">
+                    <button class="bg-blue-500 text-white px-2 py-1 rounded mr-2" @onclick="() => EditBook(book)">Edit</button>
+                    <button class="bg-red-500 text-white px-2 py-1 rounded" @onclick="() => DeleteBook(book.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Book Form -->
+<h3 class="text-lg font-semibold mb-2">@((IsEditing ? "Edit Book" : "Add New Book"))</h3>
+
+<EditForm Model="@bookForm" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-2">
+        <label class="block mb-1">Title:</label>
+        <InputText class="border p-1 w-full" @bind-Value="bookForm.Title" />
+    </div>
+    <div class="mb-2">
+        <label class="block mb-1">Author:</label>
+        <InputText class="border p-1 w-full" @bind-Value="bookForm.Author" />
+    </div>
+    <div class="mb-2">
+        <label class="block mb-1">ISBN:</label>
+        <InputText class="border p-1 w-full" @bind-Value="bookForm.ISBN" />
+    </div>
+
+    <button class="bg-green-600 text-white px-4 py-1 rounded" type="submit">
+        @(IsEditing ? "Update Book" : "Add Book")
+    </button>
+    @if (IsEditing)
+    {
+        <button class="ml-2 bg-gray-500 text-white px-4 py-1 rounded" @onclick="CancelEdit">Cancel</button>
+    }
+</EditForm>
+
+@code {
+    private Book bookForm = new();
+    private bool IsEditing = false;
+
+    private void HandleSubmit()
+    {
+        if (IsEditing)
+        {
+            LibraryService.EditBook(bookForm);
+        }
+        else
+        {
+            LibraryService.AddBook(bookForm);
+        }
+
+        ResetForm();
+    }
+
+    private void EditBook(Book book)
+    {
+        bookForm = new Book
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                ISBN = book.ISBN
+            };
+        IsEditing = true;
+    }
+
+    private void DeleteBook(int id)
+    {
+        LibraryService.DeleteBook(id);
+        StateHasChanged();
+    }
+
+    private void CancelEdit()
+    {
+        ResetForm();
+    }
+
+    private void ResetForm()
+    {
+        bookForm = new Book();
+        IsEditing = false;
+        StateHasChanged();
+    }
+}

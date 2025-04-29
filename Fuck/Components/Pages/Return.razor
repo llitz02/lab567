@@ -1,0 +1,56 @@
+﻿@page "/return"
+@inject Fuck.Services.LibraryService LibraryService
+@using Fuck.Models
+
+<h3>Return a Book</h3>
+
+<label>Select User:</label>
+<select @onchange="OnUserSelected" class="form-control">
+    <option disabled selected value="">-- Select a User --</option>
+    @foreach (var user in LibraryService.Users)
+    {
+        <option value="@user.Id">@user.Name (@user.Email)</option>
+    }
+</select>
+
+@if (SelectedUserId > 0)
+{
+    var borrowedBooks = LibraryService.GetBorrowedBooksByUser(SelectedUserId);
+
+    @* Debug info (optional) *@
+    <p><em>Borrowed Count: @borrowedBooks.Count</em></p>
+
+    if (borrowedBooks.Count == 0)
+    {
+        <p>This user has no borrowed books.</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var book in borrowedBooks)
+            {
+                <li>
+                    <strong>@book.Title</strong> by @book.Author
+                    <button class="btn btn-sm btn-primary ms-2" @onclick="() => ReturnBook(book.Id)">Return</button>
+                </li>
+            }
+        </ul>
+    }
+}
+
+@code {
+    int SelectedUserId;
+
+    void OnUserSelected(ChangeEventArgs e)
+    {
+        int.TryParse(e.Value?.ToString(), out SelectedUserId);
+    }
+
+    void ReturnBook(int bookId)
+    {
+        if (LibraryService.ReturnBook(SelectedUserId, bookId))
+        {
+            StateHasChanged();
+        }
+    }
+}

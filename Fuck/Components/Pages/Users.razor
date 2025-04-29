@@ -1,0 +1,104 @@
+﻿@page "/users"
+@inject Fuck.Services.LibraryService LibraryService
+@using Fuck.Models
+
+<h2 class="text-xl font-bold mb-4">Users</h2>
+
+<!-- User List -->
+<table class="table-auto border-collapse w-full mb-4">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="border px-4 py-2">ID</th>
+            <th class="border px-4 py-2">Name</th>
+            <th class="border px-4 py-2">Email</th>
+            <th class="border px-4 py-2">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in LibraryService.Users)
+        {
+            <tr>
+                <td class="border px-4 py-2">@user.Id</td>
+                <td class="border px-4 py-2">@user.Name</td>
+                <td class="border px-4 py-2">@user.Email</td>
+                <td class="border px-4 py-2">
+                    <button class="bg-blue-500 text-white px-2 py-1 rounded mr-2" @onclick="() => EditUser(user)">Edit</button>
+                    <button class="bg-red-500 text-white px-2 py-1 rounded" @onclick="() => DeleteUser(user.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- User Form -->
+<h3 class="text-lg font-semibold mb-2">@((IsEditing ? "Edit User" : "Add New User"))</h3>
+
+<EditForm Model="@userForm" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-2">
+        <label class="block mb-1">Name:</label>
+        <InputText class="border p-1 w-full" @bind-Value="userForm.Name" />
+    </div>
+    <div class="mb-2">
+        <label class="block mb-1">Email:</label>
+        <InputText class="border p-1 w-full" @bind-Value="userForm.Email" />
+    </div>
+
+    <button class="bg-green-600 text-white px-4 py-1 rounded" type="submit">
+        @(IsEditing ? "Update User" : "Add User")
+    </button>
+    @if (IsEditing)
+    {
+        <button class="ml-2 bg-gray-500 text-white px-4 py-1 rounded" @onclick="CancelEdit">Cancel</button>
+    }
+</EditForm>
+
+@code {
+    private User userForm = new();
+    private bool IsEditing = false;
+
+    private void HandleSubmit()
+    {
+        if (IsEditing)
+        {
+            LibraryService.EditUser(userForm);
+        }
+        else
+        {
+            LibraryService.AddUser(userForm);
+        }
+
+        ResetForm();
+    }
+
+    private void EditUser(User user)
+    {
+        userForm = new User
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email
+            };
+        IsEditing = true;
+    }
+
+    private void DeleteUser(int id)
+    {
+        LibraryService.DeleteUser(id);
+        StateHasChanged();
+    }
+
+    private void CancelEdit()
+    {
+        ResetForm();
+    }
+
+    private void ResetForm()
+    {
+        userForm = new User();
+        IsEditing = false;
+        StateHasChanged();
+    }
+}
