@@ -1,4 +1,4 @@
-name: .NET CI for Fuck.Tests
+name: .NET CI for Fuck.tests
 
 on:
   push:
@@ -21,10 +21,11 @@ jobs:
         dotnet-version: 7.0.x
 
     - name: Restore dependencies
-      run: dotnet restore Fuck.Tests.sln
+      run: dotnet restore Fuck.tests/Fuck.Tests.sln
 
     - name: Build tests
-      run: dotnet build Fuck.Tests.sln --no-restore
+      run: dotnet build Fuck.tests/Fuck.Tests.sln --no-restore
 
     - name: Run tests
-      run: dotnet test Fuck.Tests.sln --no-build --verbosity normal
+      run: dotnet test Fuck.tests/Fuck.Tests.sln --no-build --verbosity normal
+
