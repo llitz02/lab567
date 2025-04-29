@@ -104,6 +104,6 @@ public class LibraryServiceTests
         Assert.False(success);
     }
 
-    .
+    // trigga trigga
     //trigger workflow
 }
