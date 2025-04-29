@@ -1,7 +1,4 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: .NET
+name: .NET CI for Fuck.Tests
 
 on:
   push:
@@ -10,19 +7,24 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  test:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 7.0.x
+
     - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet restore Fuck.Tests.sln
+
+    - name: Build tests
+      run: dotnet build Fuck.Tests.sln --no-restore
+
+    - name: Run tests
+      run: dotnet test Fuck.Tests.sln --no-build --verbosity normal
